@@ -20,29 +20,28 @@
  */
 
 /**
- * Doctrine_Ticket_DC292_TestCase
+ * Doctrine_Ticket_DC709_TestCase
  *
  * @package     Doctrine
- * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
+ * @author      John Kary <john@johnkary.net>
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @category    Object Relational Mapping
  * @link        www.doctrine-project.org
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Ticket_DC292_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Ticket_DC709_TestCase extends Doctrine_UnitTestCase 
 {
     public function testTest()
     {
-        $dir = dirname(__FILE__) . '/DC292/migrations';
-        if ( ! is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        $migration = new Doctrine_Migration($dir);
-        $diff = new Doctrine_Migration_Diff(dirname(__FILE__) . '/DC292/from.yml', dirname(__FILE__) . '/DC292/to.yml', $migration);
-        $changes = $diff->generateChanges();
-        $this->assertEqual(2, count($changes['created_columns']['article']));
-        $this->assertTrue(isset($changes['created_columns']['article']['created_at']));
-        $this->assertTrue(isset($changes['created_columns']['article']['updated_at']));
+        $dbh = new Doctrine_Adapter_Mock('mysql');
+        
+        $conn = Doctrine_Manager::getInstance()->connection($dbh, 'mysql', false);
+
+        $sql = $conn->export->createTableSql('mytable', array(
+            'name' => array('type' => 'string', 'length' => 255, 'comment' => "This comment isn't breaking")
+        ));
+
+        $this->assertEqual($sql[0], "CREATE TABLE mytable (name VARCHAR(255) COMMENT 'This comment isn''t breaking') ENGINE = INNODB");
     }
 }
